@@ -1,0 +1,19 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" />
+    <title>@ViewData["Title"] - CoreEmployeeSPA</title>
+</head>
+
+<body>
+    <div>
+        <ul>
+            <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
+        </ul>
+    </div>
+    <div>
+        @RenderBody()
+    </div>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

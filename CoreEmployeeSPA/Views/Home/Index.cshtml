@@ -1,0 +1,251 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div id="list">
+    <a href="#" onclick="addNew();">Create New</a>
+    <table style="width:100%" border="1">
+        <thead>
+            <tr>
+                <th>Employee Name</th>
+                <th>Gender</th>
+                <th>Age</th>
+                <th>Department</th>
+                <th>Joining Date</th>
+                <th>Photo</th>
+                <th>Edit</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody id="listDetail">
+        </tbody>
+    </table>
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+@await Html.PartialAsync("Partial_View")
+<script>
+    function loadView(view) {
+        if (view == 'form') {
+            document.getElementById('list').style.display = 'none';
+            document.getElementById('form').style.display = '';
+        } else {
+            document.getElementById('list').style.display = '';
+            document.getElementById('form').style.display = 'none';
+            this.getAll();
+        }
+    }
+    this.loadView('list');
+    this.getDepartment();
+
+    var Employee = {
+        "EmployeeId": 0,
+        "EmployeeName": "",
+        "Age": "",
+        "DepartmentId": "",
+        "JoiningDate": "",
+        "Gender": ""
+    };
+
+    function addNew() {
+        this.loadView('form');
+        this.reset();
+        document.getElementById('btnInsert').style.display = '';
+        document.getElementById('btnUpdate').style.display = 'none';
+    }
+
+    function insert() {
+        this.Employee.EmployeeId = 0;
+        this.Employee.EmployeeName = document.getElementById('EmployeeName').value;
+        this.Employee.DepartmentId = document.getElementById('Department').value;
+        this.Employee.Age = document.getElementById('Age').value;
+        this.Employee.JoiningDate = document.getElementById('JoiningDate').value;
+        var Gender = document.getElementById("Male").checked === true ? 'Male' : 'Female';
+        this.Employee.Gender = Gender;
+        var strJson = JSON.stringify(this.Employee);
+
+        var files = document.getElementById('pic').files;
+        var file = files.length > 0 ? files[0] : null;
+        var formData = new FormData();
+        formData.append("picPath", file);
+        formData.append("EmployeeId", this.Employee.EmployeeId);
+        formData.append("EmployeeName", this.Employee.EmployeeName);
+        formData.append("Age", this.Employee.Age);
+        formData.append("DepartmentId", this.Employee.DepartmentId);
+        formData.append("JoiningDate", this.Employee.JoiningDate);
+        formData.append("Gender", this.Employee.Gender);
+
+        var http = new XMLHttpRequest();
+        var url = '/Home/DetailsAdd';
+        http.open('POST', url, true);
+        http.onreadystatechange = function () {
+            if (http.readyState == 4 && http.status == 200) {
+                if (http.responseText != null) {
+                    var res = JSON.parse(http.responseText);
+                    if (res != null) {
+                        if (res.resstate == true) {
+                            alert('Save successfully.');
+                            loadView('list');
+                        }
+                    }
+                }
+            }
+        }
+        http.send(formData);
+    }
+
+    function update() {
+        this.Employee.EmployeeId = document.getElementById('EmployeeId').value;
+        this.Employee.EmployeeName = document.getElementById('EmployeeName').value;
+        this.Employee.Age = document.getElementById('Age').value;
+        this.Employee.DepartmentId = document.getElementById('Department').value;
+        this.Employee.JoiningDate = document.getElementById('JoiningDate').value;
+        var Gender = document.getElementById("Male").checked === true ? 'Male' : 'Female';
+        this.Employee.Gender = Gender;
+
+        var files = document.getElementById('pic').files;
+        var file = files.length > 0 ? files[0] : null;
+        var formData = new FormData();
+        formData.append("picPath", file);
+        formData.append("EmployeeId", this.Employee.EmployeeId);
+        formData.append("EmployeeName", this.Employee.EmployeeName);
+        formData.append("Age", this.Employee.Age);
+        formData.append("DepartmentId", this.Employee.DepartmentId);
+        formData.append("JoiningDate", this.Employee.JoiningDate);
+        formData.append("Gender", this.Employee.Gender);
+
+        var http = new XMLHttpRequest();
+        var url = '/Home/DetailsEdit';
+        var strJson = JSON.stringify(this.Employee);
+        http.open('PUT', url, true);
+        http.onreadystatechange = function () {
+            if (http.readyState == 4 && http.status == 200) {
+                if (http.responseText != null) {
+                    var res = JSON.parse(http.responseText);
+                    if (res != null) {
+                        if (res.resstate == true) {
+                            alert('Update successfully.');
+                            loadView('list');
+                        }
+                    }
+                }
+            }
+        }
+        http.send(formData);
+    }
+
+    function deleteEmployee(id) {
+        var http = new XMLHttpRequest();
+        var url = '/Home/DetailsRemove?id=' + id;
+        var strJson = JSON.stringify(this.Employee);
+        http.open('DELETE', url, true);
+        http.setRequestHeader('Content-type', 'application/json');
+        http.onreadystatechange = function () {
+            if (http.readyState == 4 && http.status == 200) {
+                if (http.responseText != null) {
+                    var res = JSON.parse(http.responseText);
+                    if (res.resstate == true) {
+                        alert('Delete Successfully.');
+                        loadView('list');
+                    }
+                }
+            }
+        }
+        http.send(strJson);
+    }
+
+    function remove(id) {
+        var isConfirm = confirm('Are you sure to Delete?');
+        if (isConfirm) {
+            this.deleteEmployee(id);
+        }
+    }
+
+    function edit(id) {
+        this.loadView('form');
+        document.getElementById('btnInsert').style.display = 'none';
+        document.getElementById('btnUpdate').style.display = '';
+        this.getById(id);
+    }
+
+    function reset() {
+        document.getElementById('EmployeeId').value = '';
+        document.getElementById('EmployeeName').value = '';
+        document.getElementById('Age').value = '';
+        document.getElementById('Department').value = '';
+        document.getElementById('JoiningDate').value = '';
+        document.getElementById("Male").checked = false;
+        document.getElementById("Female").checked = false;
+    }
+
+    function getDepartment() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/Home/Department', true);
+        xhr.onload = function () {
+            var options = '';
+            var listDepartment = JSON.parse(this.responseText);
+            for (var i = 0; i < listDepartment.length; i++) {
+                var option = '<option value="' + listDepartment[i].DepartmentId + '">' + listDepartment[i].DepartmentName + '</option>';
+                options += option;
+            }
+            document.getElementById('Department').innerHTML = options;
+        };
+        xhr.send();
+    }
+
+    function getAll() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/Home/Detailss', true);
+        xhr.onload = function () {
+            var tbody = '';
+            var listDetail = JSON.parse(this.responseText);
+            for (var i = 0; i < listDetail.length; i++) {
+                var tr = '<tr>'
+                    + '<td>' + listDetail[i].EmployeeName + '</td>'
+                    + '<td>' + listDetail[i].Gender + '</td>'
+                    + '<td>' + listDetail[i].Age + '</td>'
+                    + '<td>' + listDetail[i].DepartmentName + '</td>'
+                    + '<td>' + listDetail[i].JoiningDate + '</td>'
+                    + '<td><img src="/pics/' + listDetail[i].picPath + '" style="width:50px,align:center"></td>'
+                    + '<td><a href="#" onclick="edit(' + listDetail[i].EmployeeId + ')">Edit</a></td>'
+                    + '<td><a href="#" onclick="remove(' + listDetail[i].EmployeeId + ')">Delete</a></td>'
+                    + '<tr>';
+                tbody += tr;
+            }
+            document.getElementById('listDetail').innerHTML = tbody;
+        };
+        xhr.send();
+    }
+
+    function getById(id) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/Home/EmployeeDetail?id=' + id, true);
+        xhr.onload = function () {
+            var oDetails = JSON.parse(this.responseText);
+            document.getElementById('EmployeeId').value = oDetails.EmployeeId;
+            document.getElementById('EmployeeName').value = oDetails.EmployeeName;
+            document.getElementById('Age').value = oDetails.Age;
+            document.getElementById('Department').value = oDetails.DepartmentId;
+            document.getElementById('JoiningDate').value = formatDate(oDetails.JoiningDate);
+            document.getElementById("Male").checked = oDetails.Gender == 'Male' ? true : false;
+            document.getElementById("Female").checked = oDetails.Gender == 'Female' ? true : false;
+        };
+        xhr.send();
+    }
+
+    function formatDate(date) {
+        var d = new Date(date),
+            month = '' + (d.getMonth() + 1),
+            day = '' + d.getDate(),
+            year = d.getFullYear();
+
+        if (month.length < 2) {
+            month = '0' + month;
+        }
+        if (day.length < 2) {
+            day = '0' + day;
+        }
+        return [year, month, day].join('-');
+    }
+</script>
+

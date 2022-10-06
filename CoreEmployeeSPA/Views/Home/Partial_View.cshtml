@@ -1,0 +1,32 @@
+﻿
+<div id="form">
+    <div>
+        <div>
+            <input type="hidden" id="EmployeeId" />
+            Name: <input type="text" id="EmployeeName" />
+        </div>
+        <div>
+            Gender:
+            <input type="radio" id="Male" name="Gender" value="Male" /> Male
+            <input type="radio" id="Female" name="Gender" value="Female" /> Female
+        </div>
+        <div>
+            Age: <input type="text" id="Age" />
+        </div>
+
+        <div>
+            Department:<select id="Department"></select>
+        </div>
+        <div>
+            Joining Date: <input type="date" id="JoiningDate" />
+        </div>
+        <div>
+            Photo:<input type="file" id="pic" name="pic" />
+        </div>
+        <div>
+            <button type="button" onclick="insert();" id="btnInsert">Save</button>
+            <button type="button" onclick="update();" id="btnUpdate">Update</button>
+        </div>
+    </div>
+    <a href="#" onclick="loadView('list');">Back to List</a>
+</div>
